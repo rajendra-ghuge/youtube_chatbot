@@ -1,16 +1,20 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./Home";
-import Result from "./Result";
-import "./styles.css";
-
+import Header from "./components/Header";
+import Home from "./pages/Home";
+import Compare from "./pages/Compare";
+import Result from "./pages/Result";
 
 function App() {
   return (
     <Router>
+      <Header />
+
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/compare" element={<Compare />} />
         <Route path="/result" element={<Result />} />
       </Routes>
+
     </Router>
   );
 }

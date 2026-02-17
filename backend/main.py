@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from model import generate_summary, get_transcript
 from urllib.parse import urlparse, parse_qs
 from fastapi.middleware.cors import CORSMiddleware
+from chat_bot import compare_videos
 
 app = FastAPI()
 
@@ -28,6 +29,10 @@ class ChatRequest(BaseModel):
     transcript: str
     question: str  
     video_id: str
+class CompareRequest(BaseModel):
+    url1: str
+    url2: str
+    question: str
         
 def extract_video_id(url: str):
     parsed_url = urlparse(url)
@@ -64,3 +69,25 @@ async def get_summary(data: SummaryRequest):
 @app.post("/chat")
 async def chat_with_video(data: ChatRequest):
     return {"response": ask_question(data.video_id, data.transcript, data.question)}
+
+
+
+@app.post("/compare")
+async def compare(data: CompareRequest):
+
+    video_id_1 = extract_video_id(data.url1)
+    video_id_2 = extract_video_id(data.url2)
+
+    if not video_id_1 or not video_id_2:
+        return {"error": "Invalid YouTube URL"}
+
+    transcript_1 = get_transcript(video_id_1)
+    transcript_2 = get_transcript(video_id_2)
+
+    result = compare_videos(
+        video_id_1, transcript_1,
+        video_id_2, transcript_2,
+        data.question
+    )
+
+    return {"comparison": result}
